@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>player generator</title>
+<meta property="og:title" content="player generator">
+<meta property="og:description" content="random jersey assignment">
+<meta property="og:image" content="preview.png">
+<meta property="og:type" content="website">
+<style>
+:root {
+  --bg:#111111;
+  --jersey:#0B2340;
+  --text:#ffffff;
+  --muted:#8a8a8a;
+}
+* { margin:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html,body { width:100%; height:100%; }
+body {
+  background:var(--bg);
+  color:var(--text);
+  font-family:Arial, Helvetica, sans-serif;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+}
+.wrap {
+  text-align:center;
+  width:min(760px, calc(100vw - 30px));
+}
+.kicker {
+  font-size:12px;
+  letter-spacing:3px;
+  color:var(--muted);
+  margin-bottom:10px;
+  text-transform:uppercase;
+}
+.player {
+  font-size:clamp(2.2rem, 6vw, 4.4rem);
+  font-weight:800;
+  line-height:.95;
+  margin-bottom:16px;
+  letter-spacing:-.05em;
+}
+.jersey {
+  width:220px;
+  height:270px;
+  background:linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--jersey) 92%, white 8%),
+    color-mix(in srgb, var(--jersey) 80%, black 20%)
+  );
+  margin:0 auto;
+  border-radius:28px 28px 38px 38px;
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow:0 22px 40px rgba(0,0,0,0.42);
+  transition:transform .18s ease;
+  border:4px solid rgba(255,255,255,.7);
+}
+.jersey.pop { transform:scale(1.03) rotate(-1deg); }
+.collar {
+  position:absolute;
+  top:-2px;
+  left:50%;
+  transform:translateX(-50%);
+  width:64px;
+  height:28px;
+  background:#fff;
+  clip-path:polygon(0 0,100% 0,82% 100%,18% 100%);
+}
+.name {
+  position:absolute;
+  top:38px;
+  font-size:12px;
+  letter-spacing:2px;
+  font-weight:800;
+  opacity:0.95;
+  text-shadow:
+    0 1px 0 rgba(0,0,0,0.4),
+    0 0 6px rgba(255,255,255,0.15);
+}
+.number {
+  font-size:96px;
+  font-weight:900;
+  line-height:1;
+}
+.controls {
+  margin-top:22px;
+  display:flex;
+  gap:10px;
+  justify-content:center;
+  flex-wrap:wrap;
+}
+button {
+  background:none;
+  border:1px solid #555;
+  color:#bbb;
+  padding:9px 14px;
+  border-radius:20px;
+  cursor:pointer;
+  font:inherit;
+}
+button:hover {
+  color:white;
+  border-color:white;
+}
+.footer {
+  margin-top:16px;
+  color:#8a8a8a;
+  font-size:.9rem;
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="kicker">player generator</div>
+  <div class="player" id="playerName">BRADY 12</div>
+
+  <div class="jersey" id="jersey">
+    <div class="collar"></div>
+    <div class="name" id="name">BRADY</div>
+    <div class="number" id="number">12</div>
+  </div>
+
+  <div class="controls">
+    <button id="again">again</button>
+    <button id="wiki">player wiki</button>
+  </div>
+
+  <div class="footer">♡ taylor</div>
+</div>
+
+<script>
+const players = [["Tom Brady", "BRADY", "12", "#0B2340", "https://en.wikipedia.org/wiki/Tom_Brady"], ["Patrick Mahomes", "MAHOMES", "15", "#E31837", "https://en.wikipedia.org/wiki/Patrick_Mahomes"], ["Peyton Manning", "MANNING", "18", "#003B7B", "https://en.wikipedia.org/wiki/Peyton_Manning"], ["Joe Montana", "MONTANA", "16", "#AA0000", "https://en.wikipedia.org/wiki/Joe_Montana"], ["Jerry Rice", "RICE", "80", "#AA0000", "https://en.wikipedia.org/wiki/Jerry_Rice"], ["Walter Payton", "PAYTON", "34", "#0B162A", "https://en.wikipedia.org/wiki/Walter_Payton"], ["Barry Sanders", "SANDERS", "20", "#0076B6", "https://en.wikipedia.org/wiki/Barry_Sanders"], ["Emmitt Smith", "SMITH", "22", "#0B2340", "https://en.wikipedia.org/wiki/Emmitt_Smith"], ["Troy Aikman", "AIKMAN", "8", "#0B2340", "https://en.wikipedia.org/wiki/Troy_Aikman"], ["Michael Irvin", "IRVIN", "88", "#0B2340", "https://en.wikipedia.org/wiki/Michael_Irvin"], ["Roger Staubach", "STAUBACH", "12", "#0B2340", "https://en.wikipedia.org/wiki/Roger_Staubach"], ["Ian Bunting", "BUNTING", "89", "#0B2340", "https://en.wikipedia.org/wiki/Ian_Bunting"], ["Randy Moss", "MOSS", "84", "#4F2683", "https://en.wikipedia.org/wiki/Randy_Moss"], ["Ray Lewis", "LEWIS", "52", "#241773", "https://en.wikipedia.org/wiki/Ray_Lewis"], ["Ed Reed", "REED", "20", "#241773", "https://en.wikipedia.org/wiki/Ed_Reed"], ["Brett Favre", "FAVRE", "4", "#203731", "https://en.wikipedia.org/wiki/Brett_Favre"], ["Aaron Rodgers", "RODGERS", "12", "#203731", "https://en.wikipedia.org/wiki/Aaron_Rodgers"], ["Reggie White", "WHITE", "92", "#203731", "https://en.wikipedia.org/wiki/Reggie_White"], ["Dan Marino", "MARINO", "13", "#008E97", "https://en.wikipedia.org/wiki/Dan_Marino"], ["Drew Brees", "BREES", "9", "#101820", "https://en.wikipedia.org/wiki/Drew_Brees"], ["Marshawn Lynch", "LYNCH", "24", "#002244", "https://en.wikipedia.org/wiki/Marshawn_Lynch"], ["Russell Wilson", "WILSON", "3", "#002244", "https://en.wikipedia.org/wiki/Russell_Wilson"], ["Adrian Peterson", "PETERSON", "28", "#4F2683", "https://en.wikipedia.org/wiki/Adrian_Peterson"], ["Calvin Johnson", "JOHNSON", "81", "#0076B6", "https://en.wikipedia.org/wiki/Calvin_Johnson"], ["Jim Brown", "BROWN", "32", "#311D00", "https://en.wikipedia.org/wiki/Jim_Brown"], ["Marcus Allen", "ALLEN", "32", "#000000", "https://en.wikipedia.org/wiki/Marcus_Allen"], ["Josh Allen", "ALLEN", "17", "#00338D", "https://en.wikipedia.org/wiki/Josh_Allen"], ["Cam Newton", "NEWTON", "1", "#0085CA", "https://en.wikipedia.org/wiki/Cam_Newton"], ["Lamar Jackson", "JACKSON", "8", "#241773", "https://en.wikipedia.org/wiki/Lamar_Jackson"], ["Joe Burrow", "BURROW", "9", "#FB4F14", "https://en.wikipedia.org/wiki/Joe_Burrow"], ["Jalen Hurts", "HURTS", "1", "#004C54", "https://en.wikipedia.org/wiki/Jalen_Hurts"], ["Justin Jefferson", "JEFFERSON", "18", "#4F2683", "https://en.wikipedia.org/wiki/Justin_Jefferson"], ["Ja'Marr Chase", "CHASE", "1", "#FB4F14", "https://en.wikipedia.org/wiki/Ja%27Marr_Chase"], ["Tyreek Hill", "HILL", "10", "#008E97", "https://en.wikipedia.org/wiki/Tyreek_Hill"], ["CeeDee Lamb", "LAMB", "88", "#0B2340", "https://en.wikipedia.org/wiki/CeeDee_Lamb"], ["Christian McCaffrey", "MCCAFFREY", "23", "#AA0000", "https://en.wikipedia.org/wiki/Christian_McCaffrey"], ["Derrick Henry", "HENRY", "22", "#4B92DB", "https://en.wikipedia.org/wiki/Derrick_Henry"], ["J.J. Watt", "WATT", "99", "#03202F", "https://en.wikipedia.org/wiki/J._J._Watt"], ["Aaron Donald", "DONALD", "99", "#003594", "https://en.wikipedia.org/wiki/Aaron_Donald"], ["Kurt Warner", "WARNER", "13", "#003594", "https://en.wikipedia.org/wiki/Kurt_Warner"], ["Marshall Faulk", "FAULK", "28", "#003594", "https://en.wikipedia.org/wiki/Marshall_Faulk"], ["LaDainian Tomlinson", "TOMLINSON", "21", "#0080C6", "https://en.wikipedia.org/wiki/LaDainian_Tomlinson"], ["Steve Young", "YOUNG", "8", "#AA0000", "https://en.wikipedia.org/wiki/Steve_Young"], ["Terrell Owens", "OWENS", "81", "#AA0000", "https://en.wikipedia.org/wiki/Terrell_Owens"], ["Julio Jones", "JONES", "11", "#A71930", "https://en.wikipedia.org/wiki/Julio_Jones"], ["Michael Vick", "VICK", "7", "#A71930", "https://en.wikipedia.org/wiki/Michael_Vick"], ["Andre Johnson", "JOHNSON", "80", "#03202F", "https://en.wikipedia.org/wiki/Andre_Johnson"], ["Bruce Smith", "SMITH", "78", "#00338D", "https://en.wikipedia.org/wiki/Bruce_Smith"], ["Jim Kelly", "KELLY", "12", "#00338D", "https://en.wikipedia.org/wiki/Jim_Kelly"], ["Troy Polamalu", "POLAMALU", "43", "#101820", "https://en.wikipedia.org/wiki/Troy_Polamalu"], ["Joe Greene", "GREENE", "75", "#101820", "https://en.wikipedia.org/wiki/Joe_Greene"], ["Ben Roethlisberger", "ROETHLIS", "7", "#101820", "https://en.wikipedia.org/wiki/Ben_Roethlisberger"], ["Deion Sanders", "SANDERS", "21", "#0B2340", "https://en.wikipedia.org/wiki/Deion_Sanders"], ["Dak Prescott", "PRESCOTT", "4", "#0B2340", "https://en.wikipedia.org/wiki/Dak_Prescott"], ["Tony Romo", "ROMO", "9", "#0B2340", "https://en.wikipedia.org/wiki/Tony_Romo"], ["Bo Jackson", "JACKSON", "34", "#000000", "https://en.wikipedia.org/wiki/Bo_Jackson"], ["Howie Long", "LONG", "75", "#000000", "https://en.wikipedia.org/wiki/Howie_Long"], ["Joe Thomas", "THOMAS", "73", "#311D00", "https://en.wikipedia.org/wiki/Joe_Thomas"], ["Terry Bradshaw", "BRADSHAW", "12", "#101820", "https://en.wikipedia.org/wiki/Terry_Bradshaw"], ["A.J. Brown", "BROWN", "11", "#004C54", "https://en.wikipedia.org/wiki/A._J._Brown"], ["Saquon Barkley", "BARKLEY", "26", "#0B2265", "https://en.wikipedia.org/wiki/Saquon_Barkley"], ["Baker Mayfield", "MAYFIELD", "6", "#D50A0A", "https://en.wikipedia.org/wiki/Baker_Mayfield"], ["Travis Kelce", "KELCE", "87", "#E31837", "https://en.wikipedia.org/wiki/Travis_Kelce"], ["Matthew Stafford", "STAFFORD", "9", "#003594", "https://en.wikipedia.org/wiki/Matthew_Stafford"], ["Steve Largent", "LARGENT", "80", "#002244", "https://en.wikipedia.org/wiki/Steve_Largent"], ["Brock Purdy", "PURDY", "13", "#AA0000", "https://en.wikipedia.org/wiki/Brock_Purdy"], ["Bijan Robinson", "ROBINSON", "7", "#A71930", "https://en.wikipedia.org/wiki/Bijan_Robinson"], ["Amon-Ra St. Brown", "ST.BROWN", "14", "#0076B6", "https://en.wikipedia.org/wiki/Amon-Ra_St._Brown"]];
+let current = null;
+
+function randomPlayer() {
+  current = players[Math.floor(Math.random()*players.length)];
+  const [full,last,num,color] = current;
+
+  document.getElementById("playerName").textContent = last + " " + num;
+  document.getElementById("name").textContent = last;
+  document.getElementById("number").textContent = num;
+  document.documentElement.style.setProperty("--jersey", color);
+
+  const jersey = document.getElementById("jersey");
+  jersey.classList.remove("pop");
+  void jersey.offsetWidth;
+  jersey.classList.add("pop");
+}
+
+document.body.addEventListener("click", (e) => {
+  if(e.target.tagName === "BUTTON") return;
+  randomPlayer();
+});
+
+document.getElementById("again").onclick = (e) => {
+  e.stopPropagation();
+  randomPlayer();
+};
+
+document.getElementById("wiki").onclick = (e) => {
+  e.stopPropagation();
+  if(current) {
+    window.open(current[4], "_blank");
+  }
+};
+
+randomPlayer();
+</script>
+</body>
+</html>
